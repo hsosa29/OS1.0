@@ -1,0 +1,44 @@
+export PREFIX="/opt/cross"
+export TARGET=i686-elf
+export PATH="$PREFIX/bin:$PATH"
+
+i686-elf-as boot.s -o boot.o
+	
+i686-elf-gcc -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+
+i686-elf-gcc -T linker.ld -o ProyectoSO.bin -ffreestanding -O2 -nostdlib boot.o kernel.o -lgcc
+
+grub-file --is-x86-multiboot ProyectoSO.bin
+
+if grub-file --is-x86-multiboot ProyectoSO.bin; then
+  echo multiboot confirmed;
+else
+  echo the file is not multiboot;
+fi	
+
+mkdir -p isodir/boot/grub
+cp ProyectoSO.bin isodir/boot/ProyectoSO.bin
+cp grub.cfg isodir/boot/grub/grub.cfg
+grub-mkrescue -o ProyectoSO.iso isodir
+
+qemu-system-i386 -cdrom ProyectoSO.iso
+
+qemu-system-i386 -kernel ProyectoSO.bin
+
+sudo dd if=ProyectoSO.iso of=/dev/sdx && sync
+
+GITHUB
+…or create a new repository on the command line
+
+echo "# OS1.0" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/hsosa29/OS1.0.git
+git push -u origin master
+
+…or push an existing repository from the command line
+
+git remote add origin https://github.com/hsosa29/OS1.0.git
+git push -u origin master	
+
